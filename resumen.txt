@@ -1,0 +1,38 @@
+CREATE DATABASE nombre_base;
+
+
+ALTER TABLE nombre_tabla
+ADD nombre_columna tipo_dato;
+ALTER TABLE nombre_tabla
+RENAME COLUMN nombre_viejo TO nombre_nuevo;
+ALTER TABLE nombre_tabla
+DROP COLUMN nombre_columna;
+
+DELETE FROM nombre_tabla WHERE condicion;
+DELETE permite eliminar filas específicas usando WHERE.
+
+TRUNCATE elimina todas las filas de una tabla (sin posibilidad de recuperación).
+TRUNCATE TABLE nombre_tabla;
+
+INSERT INTO nombre_tabla (columna1, columna2, ...) VALUES (valor1, valor2, ...);
+Inserta nuevas filas en una tabla.
+
+
+SELECT * FROM nombre_tabla WHERE condicion;
+SELECT * FROM nombre_tabla WHERE columna LIKE '%patron%';
+SELECT * FROM nombre_tabla WHERE columna BETWEEN valor1 AND valor2;
+SELECT * FROM nombre_tabla WHERE columna IS NULL;
+SELECT * FROM nombre_tabla WHERE columna IN (valor1, valor2, ...);
+SELECT * FROM nombre_tabla WHERE EXISTS (subconsulta);
+
+
+SELECT AVG(columna), MIN(columna), MAX(columna), SUM(columna), COUNT(*) FROM nombre_tabla;
+
+
+SELECT columna, COUNT(*)
+FROM nombre_tabla
+GROUP BY columna
+HAVING condicion;
+Agrupa filas que comparten un valor común, y HAVING permite aplicar una condición sobre el grupo.
+
+
