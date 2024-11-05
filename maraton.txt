@@ -1,0 +1,61 @@
+Consulta cuántos participantes hay en cada género y rango de edad. Selecciona el género, el rango de edad (edad_desde a edad_hasta) y el número de participantes en cada grupo. Ordena los resultados por género y luego por edad mínima (edad_desde).
+SELECT genero, CONCAT(edad_desde, ' a ', edad_hasta) AS rango_edad, COUNT(*) AS total_participantes
+FROM categorias
+GROUP BY genero, edad_desde, edad_hasta
+ORDER BY genero, edad_desde;
+
+Encuentra todas las categorías de participantes cuyo rango de edad esté entre 18 y 30 años y que correspondan al género "F". Muestra el id, la descripcion de la categoría, y el recorrido_id. Usa BETWEEN para definir el rango y ordena el resultado por descripcion.
+SELECT id, descripcion, recorrido_id
+FROM categorias
+WHERE genero = 'F' AND edad_desde BETWEEN 18 AND 30
+ORDER BY descripcion;
+
+Calcula el total y el promedio de edad_desde para todas las categorías masculinas. Muestra el genero, el total de edades (edad_desde sumadas) y el promedio de edad_desde.
+SELECT genero, SUM(edad_desde) AS suma_edad_desde, AVG(edad_desde) AS promedio_edad_desde
+FROM categorias
+WHERE genero = 'M'
+GROUP BY genero;
+
+Selecciona las categorías que contengan la palabra "Veteranos" en la descripcion y que sean del género "M". Muestra descripcion y edad_desde, ordenando de menor a mayor edad_desde.
+SELECT descripcion, edad_desde
+FROM categorias
+WHERE descripcion LIKE '%Veteranos%' AND genero = 'M'
+ORDER BY edad_desde;
+
+Si la tabla recorridos tiene id, nombre, y distancia, crea una consulta que muestre el nombre del recorrido, la descripcion de la categoría y el genero. Únicamente considera las categorías donde la distancia del recorrido sea mayor a 10 km. Ordena los resultados por nombre de recorrido.
+SELECT recorridos.nombre, categorias.descripcion, categorias.genero
+FROM categorias
+JOIN recorridos ON categorias.recorrido_id = recorridos.id
+WHERE recorridos.distancia > 10
+ORDER BY recorridos.nombre;
+
+Muestra el recorrido_id y la cantidad de categorías asociadas a cada recorrido, pero solo incluye aquellos recorridos que tengan más de 5 categorías. Usa GROUP BY y HAVING para limitar los resultados.
+SELECT recorrido_id, COUNT(*) AS cantidad_categorias
+FROM categorias
+GROUP BY recorrido_id
+HAVING COUNT(*) > 5;
+
+Selecciona todas las categorías donde el genero sea "M" o "F" y el recorrido_id esté en los valores 1, 2 o 3. Muestra id, descripcion y recorrido_id.
+SELECT id, descripcion, recorrido_id
+FROM categorias
+WHERE genero IN ('M', 'F') AND recorrido_id IN (1, 2, 3);
+
+Encuentra todas las categorías en las cuales existe al menos un recorrido asociado cuya distancia es exactamente 42 km. Muestra el id, descripcion, y edad_desde de estas categorías.
+SELECT id, descripcion, edad_desde
+FROM categorias
+WHERE EXISTS (
+    SELECT 1
+    FROM recorridos
+    WHERE recorridos.id = categorias.recorrido_id AND recorridos.distancia = 42
+);
+
+Selecciona las categorías que no tienen definido un límite de edad (edad_hasta es NULL). Muestra el id, la descripcion, y el genero de esas categorías.
+SELECT id, descripcion, genero
+FROM categorias
+WHERE edad_hasta IS NULL;
+
+Obtén todas las categorías de participantes en recorridos con recorrido_id mayor a 2, ordenadas primero por genero en orden ascendente y luego por edad_hasta en orden descendente. Muestra id, descripcion, genero y edad_hasta.
+SELECT id, descripcion, genero, edad_hasta
+FROM categorias
+WHERE recorrido_id > 2
+ORDER BY genero ASC, edad_hasta DESC;
