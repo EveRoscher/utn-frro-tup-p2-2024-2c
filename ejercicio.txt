@@ -1,0 +1,137 @@
+/*2) ¿Quiénes fueron contratados por la empresa Viejos Amigos o Tráigame Eso?
+Mostrar el DNI, número de contrato, fecha de incorporación, fecha de solicitud en la
+agencia de los contratados y fecha de caducidad (si no tiene fecha de caducidad colocar
+‘Sin Fecha’). Ordenado por fecha de contrato y nombre de empresa.*/
+
+/*Dni 
+nombre empresa 
+nro_contrato 
+fecha_incorporacion
+fecha_solicitud agencia 
+fecha / sin feccha 
+inner join cuit 'Viejos Amigos' or 'Traigame eso'
+order by fecha y nombre empresa */
+
+select
+empresas.razon_social,
+contratos.dni,
+contratos.nro_contrato,
+contratos.fecha_incorporacion,
+contratos.fecha_solicitud as 'Fecha de solicitud',
+IFNULL(contratos.fecha_caducidad, 'Sin Fecha') as "Fecha de caducidad"
+from contratos
+
+inner join empresas
+on empresas.razon_social='Viejos Amigos' or empresas.razon_social='Traigame eso'
+
+order by contratos.fecha_solicitud asc, empresas.razon_social asc
+
+------------------------------------------------------------------------------
+
+
+/*4) ¿Listar todos los candidatos con título de bachiller o un título de educación no
+formal. Mostrar nombre y apellido, descripción del título y DNI.*/
+
+select
+personas.dni,personas.nombre, personas.apellido, titulos.desc_titulo
+from personas
+
+inner join personas_titulos
+on personas.dni=personas_titulos.dni
+
+inner join titulos
+on personas_titulos.cod_titulo=titulos.cod_titulo
+
+where titulos.tipo_titulo='Educacion no formal' or titulos.desc_titulo='Bachiller'
+
+
+-------------------------------------------------------------------------------
+10) Listar las empresas solicitantes mostrando la razón social y fecha de cada solicitud,
+y descripción del cargo solicitado. Si hay empresas que no hayan solicitado que salga la
+leyenda: Sin Solicitudes en la fecha y en la descripción del cargo.
+
+select
+empresas.cuit, 
+empresas.razon_social, 
+ifnull(solicitudes_empresas.fecha_solicitud, 'sin solicitud') as 'fecha solicitud',
+ifnull(cargos.desc_cargo, 'sin solicitud') as 'desc cargo'
+
+from empresas
+
+left join solicitudes_empresas
+on empresas.cuit=solicitudes_empresas.cuit
+
+left join cargos
+on solicitudes_empresas.cod_cargo=cargos.cod_cargo
+
+-------------------------------------------------------------------------------
+/*Indicar todos los instructores que tengan un supervisor*/
+select 
+a.cuil as cuil_inst,
+a.nombre as nombre_int,
+a.apellido as ape_inst,
+b.cuil as cuil_sup,
+b.nombre as nombre_sup,
+b.apellido as ape_sup
+from instructores a
+inner join instructores b
+on a.cuil_supervisor=b.cuil
+
+
+-----------------------------------------------------------------------------
+/*1) Para aquellos contratos que no hayan terminado calcular la fecha de caducidad
+como la fecha de solicitud más 30 días (no actualizar la base de datos). Función ADDDATE*/
+use aencia_personal;
+select
+nro_contrato, fecha_incorporacion,fecha_finalizacion_contrato,
+case
+WHEN fecha_caducidad IS NULL THEN ADDDATE(fecha_solicitud, interval 30 day)
+ELSE fecha_solicitud
+end as fecha_solicitud
+from contratos
+
+WHERE fecha_caducidad IS NULL
+
+-------------------------------------------------------------------------------
+/*Para aquellos contratos que terminaron antes de la fecha de finalización, indicar la
+cantidad de días que finalizaron antes de tiempo. Función DATEDIFF
+*/
+
+use agencia_personal;
+select*,
+DATEDIFF (fecha_caducidad, fecha_finalizacion_contrato) as dias_antes
+from contratos
+where fecha_finalizacion_contrato > fecha_caducidad
+
+--------------------------------------------------------------------------------
+/*Mostrar las comisiones pagadas por la empresa Tráigame eso.*/
+use agencia_personal;
+select
+empresas.razon_social,
+comisiones.importe_comision as importe_cada_comision,
+sum(comisiones.importe_comision) as total_comisiones
+from contratos
+inner join comisiones
+on contratos.nro_contrato=comisiones.nro_contrato
+inner join empresas
+on contratos.cuit=empresas.cuit
+where razon_social = 'Traigame eso'
+group by comisiones.importe_comision
+
+------------------------------------------------------------------------------
+/*obtener el total de las comisiones para cada empresa, 
+pero solo mostrar aquellas empresas cuyo total de comisiones sea mayor a 500*/.
+
+USE agencia_personal;
+SELECT 
+    empresas.razon_social,
+    SUM(comisiones.importe_comision) AS total_comisiones
+FROM contratos
+INNER JOIN comisiones ON contratos.nro_contrato = comisiones.nro_contrato
+INNER JOIN empresas ON contratos.cuit = empresas.cuit
+WHERE empresas.razon_social = 'Traigame eso'
+GROUP BY empresas.razon_social
+HAVING SUM(comisiones.importe_comision) > 5000;
+
+
+
